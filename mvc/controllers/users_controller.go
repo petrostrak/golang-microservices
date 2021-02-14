@@ -3,6 +3,7 @@ package controllers
 import (
 	"encoding/json"
 	"golang-microservices/mvc/services"
+	"golang-microservices/mvc/utils"
 	"net/http"
 	"strconv"
 )
@@ -10,17 +11,32 @@ import (
 // GetUser will return all users
 // GET
 func GetUser(w http.ResponseWriter, r *http.Request) {
+	// take the requested id from the URL query
 	userID, err := strconv.ParseInt(r.URL.Query().Get("user_id"), 10, 64)
+
+	// validate for errors
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte("user_id must be a positive number"))
+		apiErr := &utils.ApplicationError{
+			Message:    "user_id must be a positive number",
+			StatusCode: http.StatusNotFound,
+			Code:       "bad_request",
+		}
+
+		// encode request to json
+		json, _ := json.Marshal(apiErr)
+		w.WriteHeader(apiErr.StatusCode)
+		w.Write(json)
 		return
 	}
 
-	user, err := services.GetUser(uint64(userID))
-	if err != nil {
-		w.WriteHeader(http.StatusNotFound)
-		w.Write([]byte(err.Error()))
+	// pass the requested id to the service
+	user, apiErr := services.GetUser(uint64(userID))
+
+	// validate for errors from service
+	if apiErr != nil {
+		json, _ := json.Marshal(apiErr)
+		w.WriteHeader(apiErr.StatusCode)
+		w.Write([]byte(json))
 		return
 	}
 
