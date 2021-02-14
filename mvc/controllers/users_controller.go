@@ -30,7 +30,7 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// pass the requested id to the service
-	user, apiErr := services.GetUser(uint64(userID))
+	user, apiErr := services.UserService.GetUser(uint64(userID))
 
 	// validate for errors from service
 	if apiErr != nil {
