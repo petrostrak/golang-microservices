@@ -1,18 +1,19 @@
 package controllers
 
 import (
-	"encoding/json"
 	"golang-microservices/mvc/services"
 	"golang-microservices/mvc/utils"
 	"net/http"
 	"strconv"
+
+	"github.com/gin-gonic/gin"
 )
 
 // GetUser will return all users
 // GET
-func GetUser(w http.ResponseWriter, r *http.Request) {
+func GetUser(c *gin.Context) {
 	// take the requested id from the URL query
-	userID, err := strconv.ParseInt(r.URL.Query().Get("user_id"), 10, 64)
+	userID, err := strconv.ParseInt(c.Param("user_id"), 10, 64)
 
 	// validate for errors
 	if err != nil {
@@ -21,26 +22,21 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 			StatusCode: http.StatusNotFound,
 			Code:       "bad_request",
 		}
-
 		// encode request to json
-		json, _ := json.Marshal(apiErr)
-		w.WriteHeader(apiErr.StatusCode)
-		w.Write(json)
+		utils.RespondError(c, apiErr)
 		return
 	}
 
+	// now that we have a valid id, we
 	// pass the requested id to the service
 	user, apiErr := services.UserService.GetUser(uint64(userID))
 
 	// validate for errors from service
 	if apiErr != nil {
-		json, _ := json.Marshal(apiErr)
-		w.WriteHeader(apiErr.StatusCode)
-		w.Write([]byte(json))
+		utils.RespondError(c, apiErr)
 		return
 	}
 
 	// return user to client
-	json, _ := json.Marshal(user)
-	w.Write(json)
+	utils.Respond(c, http.StatusOK, user)
 }

@@ -4,7 +4,8 @@ import (
 	"golang-microservices/mvc/app"
 )
 
-// curl localhost:8000/users?user_id=123A -v
+// curl localhost:8000/users/123 -v
+// curl localhost:8000/users/123 -H "Accept:application/xml" -v
 func main() {
 	app.StartApp()
 }
