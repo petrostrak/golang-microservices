@@ -16,7 +16,7 @@ func TestCreateRepoRequestAsJSON(t *testing.T) {
 		Private:     true,
 		HasIssues:   false,
 		HasProjects: false,
-		hasWiki:     true,
+		HasWiki:     true,
 	}
 
 	// Marshal takes an input interface and attempts to create a valid json
