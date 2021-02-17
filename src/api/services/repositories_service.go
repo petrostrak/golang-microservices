@@ -1,9 +1,11 @@
 package services
 
 import (
+	"fmt"
 	"golang-microservices/src/api/config"
 	"golang-microservices/src/api/domain/github"
 	"golang-microservices/src/api/domain/repositories"
+	"golang-microservices/src/api/log"
 	"golang-microservices/src/api/providers/github_provider"
 	"golang-microservices/src/api/utils/errors"
 	"net/http"
@@ -13,7 +15,7 @@ import (
 type reposService struct{}
 
 type reposServiceInterface interface {
-	CreateRepo(req repositories.CreateRepoRequest) (*repositories.CreateRepoResponse, errors.ApiError)
+	CreateRepo(clientId string, req repositories.CreateRepoRequest) (*repositories.CreateRepoResponse, errors.ApiError)
 	CreateRepos(req []repositories.CreateRepoRequest) (repositories.CreateReposResponse, errors.ApiError)
 }
 
@@ -25,7 +27,7 @@ func init() {
 	RepositoryService = &reposService{}
 }
 
-func (s *reposService) CreateRepo(input repositories.CreateRepoRequest) (*repositories.CreateRepoResponse, errors.ApiError) {
+func (s *reposService) CreateRepo(clientId string, input repositories.CreateRepoRequest) (*repositories.CreateRepoResponse, errors.ApiError) {
 	if err := input.Validate(); err != nil {
 		return nil, err
 	}
@@ -36,10 +38,13 @@ func (s *reposService) CreateRepo(input repositories.CreateRepoRequest) (*reposi
 		Private:     false,
 	}
 
+	log.Info("about to send request to external API", fmt.Sprintf("client_id: %s", clientId), "status:pending")
 	res, err := github_provider.CreateRepo(config.GetGithubAccessToken(), req)
 	if err != nil {
+		log.Info("response obtained from external API", fmt.Sprintf("client_id: %s", clientId), "status:error")
 		return nil, errors.NewApiError(err.StatusCode, err.Message)
 	}
+	log.Info("response obtained from external API", fmt.Sprintf("client_id: %s", clientId), "status:success")
 
 	result := repositories.CreateRepoResponse{
 		ID:    res.ID,
