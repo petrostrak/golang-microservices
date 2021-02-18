@@ -12,4 +12,5 @@ const (
 
 func Polo(c *gin.Context) {
 	c.String(http.StatusOK, polo)
+	c.Writer.Write([]byte("Hello polo!"))
 }
