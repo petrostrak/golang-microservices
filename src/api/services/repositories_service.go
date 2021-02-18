@@ -112,7 +112,7 @@ func (s *reposService) createRepoConcurrent(input repositories.CreateRepoRequest
 		return
 	}
 
-	result, err := s.CreateRepo(input)
+	result, err := s.CreateRepo("TODO_client_id", input)
 
 	if err != nil {
 		output <- repositories.CreateRepositoriesResult{Error: err}
