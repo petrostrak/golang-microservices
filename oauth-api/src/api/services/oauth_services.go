@@ -10,6 +10,7 @@ type oauthService struct{}
 
 type oauthServiceInterface interface {
 	CreateAccessToken(req oauth.AccessTokenRequest) (*oauth.AccessToken, errors.ApiError)
+	GetAccessToken(accessToken string) (*oauth.AccessToken, errors.ApiError)
 }
 
 var (
@@ -45,4 +46,13 @@ func (s *oauthService) CreateAccessToken(req oauth.AccessTokenRequest) (*oauth.A
 	}
 
 	return &token, nil
+}
+
+func (s *oauthService) GetAccessToken(accessToken string) (*oauth.AccessToken, errors.ApiError) {
+	token, err := oauth.GetAccessTokenByToken(accessToken)
+	if err != nil {
+		return nil, err
+	}
+
+	return token, err
 }
